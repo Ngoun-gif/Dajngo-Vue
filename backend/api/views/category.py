@@ -3,5 +3,5 @@ from backend.models import Category
 from backend.api.serializers import CategorySerializer
 
 class CategoryViewSet(viewsets.ModelViewSet):
-    queryset = Category.objects.all()
+    queryset = Category.objects.all().order_by('id')
     serializer_class = CategorySerializer

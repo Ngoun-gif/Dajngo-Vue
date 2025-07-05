@@ -4,4 +4,4 @@ from backend.models import Product
 class ProductSerializer(serializers.ModelSerializer):
     class Meta:
         model = Product
-        fields = ['id', 'name', 'category']  # only existing fields
+        fields = ['id', 'name', 'category', 'price', 'stock', 'description', 'image']

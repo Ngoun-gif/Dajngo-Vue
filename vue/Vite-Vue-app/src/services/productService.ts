@@ -2,12 +2,16 @@
 import api from '@/services/api'
 
 export interface Product {
-  id: number
-  name: string
-  category: number  // category ID
-  category_details?: {  // expanded category details when requested
-    id: number
-    name: string
+  id: number;
+  name: string;
+  price: number;
+  stock: number;
+  description?: string;
+  image?: string | null; // Changed from File | null to string | null
+  category: number;
+  category_details?: {
+    id: number;
+    name: string;
   }
 }
 
@@ -19,24 +23,30 @@ export async function fetchProducts(withCategory: boolean = false): Promise<Prod
 }
 
 // Get single product with category details
-export async function fetchProduct(id: number, withCategory: boolean = false): Promise<Product> {
+export async function fetchProduct(id: number,  withCategory: boolean = false): Promise<Product> {
   const url = withCategory ? `products/${id}/?expand=category` : `products/${id}/`
   const response = await api.get<Product>(url)
   return response.data
 }
 
-// Create a new product with category
-export async function createProduct(data: { name: string; category: number }): Promise<Product> {
-  const response = await api.post<Product>('products/', data)
+
+// CREATE product with multipart/form-data
+export async function createProduct(formData: FormData): Promise<Product> {
+  const response = await api.post<Product>('products/', formData, {
+    headers: {
+      'Content-Type': 'multipart/form-data'
+    }
+  })
   return response.data
 }
 
-// Update a product (including category change)
-export async function updateProduct(
-  id: number, 
-  data: { name: string; category: number }
-): Promise<Product> {
-  const response = await api.put<Product>(`products/${id}/`, data)
+// UPDATE product with multipart/form-data
+export async function updateProduct(id: number, formData: FormData): Promise<Product> {
+  const response = await api.put<Product>(`products/${id}/`, formData, {
+    headers: {
+      'Content-Type': 'multipart/form-data'
+    }
+  })
   return response.data
 }
 

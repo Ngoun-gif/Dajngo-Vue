@@ -90,6 +90,14 @@ const data = {
         {
           title: 'Products',
           url: '/product',
+        },
+        {
+          title: 'Teacher',
+          url: '/teacher',
+        },
+        {
+          title: 'Subject',
+          url: '/subject',
         }
       ],
     },

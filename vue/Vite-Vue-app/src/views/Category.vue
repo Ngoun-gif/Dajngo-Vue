@@ -31,10 +31,8 @@ import {
   type Category 
 } from '@/services/categoryService'
 
-// Rename icons to match Vue component conventions
 const SquarePenIcon = SquarePen
 const Trash2Icon = Trash2
-
 const PackagePlusIcon = PackagePlus
 
 const categories = ref<Category[]>([])
@@ -42,20 +40,16 @@ const loading = ref(true)
 const error = ref<string | null>(null)
 const searchQuery = ref('')
 
-// Pagination - changed to 5 items per page
 const currentPage = ref(1)
 const itemsPerPage = ref(10)
 
-// Modals state
 const showCreateModal = ref(false)
 const showEditModal = ref(false)
 const currentEditingCategory = ref<Category | null>(null)
 
-// Form data
 const newCategoryName = ref('')
 const editingName = ref('')
 
-// Computed properties
 const filteredCategories = computed(() => {
   if (!searchQuery.value) return categories.value
   return categories.value.filter(category => 
@@ -73,7 +67,6 @@ const totalPages = computed(() => {
   return Math.ceil(filteredCategories.value.length / itemsPerPage.value)
 })
 
-// Methods
 async function loadCategories() {
   loading.value = true
   error.value = null
@@ -121,9 +114,10 @@ async function handleCreate() {
       text: 'Category created successfully',
       icon: 'success',
       timer: 1500,
-      showConfirmButton: false
+      showConfirmButton: false,
+      background: 'hsl(var(--background))',
+      color: 'hsl(var(--foreground))'
     })
-    // Reset to first page after creation
     currentPage.value = 1
   } catch (err) {
     console.error(err)
@@ -133,7 +127,9 @@ async function handleCreate() {
       text: 'Failed to create category',
       icon: 'error',
       timer: 1500,
-      showConfirmButton: false
+      showConfirmButton: false,
+      background: 'hsl(var(--background))',
+      color: 'hsl(var(--foreground))'
     })
   }
 }
@@ -156,7 +152,9 @@ async function handleUpdate() {
       text: 'Category updated successfully',
       icon: 'success',
       timer: 1500,
-      showConfirmButton: false
+      showConfirmButton: false,
+      background: 'hsl(var(--background))',
+      color: 'hsl(var(--foreground))'
     })
   } catch (err) {
     console.error(err)
@@ -166,7 +164,9 @@ async function handleUpdate() {
       text: 'Failed to update category',
       icon: 'error',
       timer: 1500,
-      showConfirmButton: false
+      showConfirmButton: false,
+      background: 'hsl(var(--background))',
+      color: 'hsl(var(--foreground))'
     })
   }
 }
@@ -179,7 +179,9 @@ async function confirmDelete(category: Category) {
     showCancelButton: true,
     confirmButtonColor: '#3085d6',
     cancelButtonColor: '#d33',
-    confirmButtonText: 'Yes, delete it!'
+    confirmButtonText: 'Yes, delete it!',
+    background: 'hsl(var(--background))',
+    color: 'hsl(var(--foreground))'
   })
 
   if (result.isConfirmed) {
@@ -192,9 +194,10 @@ async function confirmDelete(category: Category) {
         text: 'Category has been deleted.',
         icon: 'success',
         timer: 1500,
-        showConfirmButton: false
+        showConfirmButton: false,
+        background: 'hsl(var(--background))',
+        color: 'hsl(var(--foreground))'
       })
-      // Reset to first page if we deleted the last item on the current page
       if (paginatedCategories.value.length === 0 && currentPage.value > 1) {
         currentPage.value--
       }
@@ -206,28 +209,24 @@ async function confirmDelete(category: Category) {
         text: 'Failed to delete category',
         icon: 'error',
         timer: 1500,
-        showConfirmButton: false
+        showConfirmButton: false,
+        background: 'hsl(var(--background))',
+        color: 'hsl(var(--foreground))'
       })
     }
   }
 }
 
 function nextPage() {
-  if (currentPage.value < totalPages.value) {
-    currentPage.value++
-  }
+  if (currentPage.value < totalPages.value) currentPage.value++
 }
 
 function prevPage() {
-  if (currentPage.value > 1) {
-    currentPage.value--
-  }
+  if (currentPage.value > 1) currentPage.value--
 }
 
 function goToPage(page: number) {
-  if (page >= 1 && page <= totalPages.value) {
-    currentPage.value = page
-  }
+  if (page >= 1 && page <= totalPages.value) currentPage.value = page
 }
 
 onMounted(() => {
@@ -239,8 +238,8 @@ onMounted(() => {
   <div class="p-3 space-y-6">
     <!-- Header Section -->
     <div class="mb-6">
-      <h1 class="text-2xl font-bold text-gray-800">Category Management</h1>
-      <p class="text-gray-600 mt-1">Manage your product categories</p>
+      <h1 class="text-2xl font-bold text-gray-800 dark:text-gray-100">Category Management</h1>
+      <p class="text-gray-600 dark:text-gray-400 mt-1">Manage your categories</p>
     </div>
 
     <!-- Search and Add Category -->
@@ -250,14 +249,14 @@ onMounted(() => {
           v-model="searchQuery"
           type="text"
           placeholder="Search categories..."
-          class="border border-gray-300 rounded-md px-3 py-2 w-full pl-10 focus:outline-none focus:ring-2 focus:ring-blue-500"
+          class="border border-gray-300 dark:border-gray-600 rounded-md px-3 py-2 w-full pl-10 focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100"
           @input="currentPage = 1" 
         />
         <MagnifyingGlassIcon class="h-5 w-5 text-gray-400 absolute left-3 top-2.5" />
       </div>
       <button
         @click="openCreateModal"
-        class="flex items-center space-x-1 bg-gray-900 hover:bg-gray-800 text-white px-4 py-2 rounded-md transition-colors duration-200"
+        class="flex items-center space-x-1 bg-gray-900 dark:bg-gray-700 hover:bg-gray-800 dark:hover:bg-gray-600 text-white px-4 py-2 rounded-md transition-colors duration-200"
       >
         <PackagePlusIcon class="w-5 h-5" />
         <span>New Category</span>
@@ -265,27 +264,27 @@ onMounted(() => {
     </div>
 
     <!-- Category Table -->
-    <div class="bg-white rounded-lg shadow overflow-hidden">
-      <table class="min-w-full divide-y divide-gray-200">
-        <thead class="bg-gray-50">
+    <div class="bg-white dark:bg-gray-900 rounded-lg shadow overflow-hidden border border-gray-200 dark:border-gray-700">
+      <table class="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
+        <thead class="bg-gray-50 dark:bg-gray-800">
           <tr>
-            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">ID</th>
-            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">NAME</th>
-            <th class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">ACTIONS</th>
+            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">ID</th>
+            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">NAME</th>
+            <th class="px-6 py-3 text-right text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">ACTIONS</th>
           </tr>
         </thead>
-        <tbody class="bg-white divide-y divide-gray-200">
+        <tbody class="bg-white dark:bg-gray-900 divide-y divide-gray-200 dark:divide-gray-700">
           <tr v-if="loading">
             <td colspan="3" class="px-6 py-4 text-center">
               <div class="inline-flex items-center justify-center space-x-2">
-                <ArrowPathIcon class="animate-spin h-5 w-5 text-gray-500" />
-                <span class="text-gray-600">Loading categories...</span>
+                <ArrowPathIcon class="animate-spin h-5 w-5 text-gray-500 dark:text-gray-400" />
+                <span class="text-gray-600 dark:text-gray-300">Loading categories...</span>
               </div>
             </td>
           </tr>
           <tr v-else-if="error">
             <td colspan="3" class="px-6 py-4 text-center">
-              <div class="inline-flex items-center px-4 py-2 bg-red-50 rounded-lg text-red-600">
+              <div class="inline-flex items-center px-4 py-2 bg-red-50 dark:bg-red-900/30 rounded-lg text-red-600 dark:text-red-300">
                 <ExclamationTriangleIcon class="h-5 w-5 mr-2" />
                 {{ error }}
               </div>
@@ -293,7 +292,7 @@ onMounted(() => {
           </tr>
           <tr v-else-if="filteredCategories.length === 0">
             <td colspan="3" class="px-6 py-4 text-center">
-              <div class="flex flex-col items-center justify-center space-y-2 text-gray-500">
+              <div class="flex flex-col items-center justify-center space-y-2 text-gray-500 dark:text-gray-400">
                 <FolderIcon class="h-12 w-12 opacity-40" />
                 <p class="text-lg">No categories found</p>
                 <p v-if="searchQuery" class="text-sm">No results for "{{ searchQuery }}"</p>
@@ -302,26 +301,27 @@ onMounted(() => {
           </tr>
           <tr 
             v-else
-            v-for=" (category , index) in paginatedCategories" 
+            v-for="(category, index) in paginatedCategories" 
             :key="category.id" 
-            class="hover:bg-gray-50"
+            class="hover:bg-gray-50 dark:hover:bg-gray-800/50"
           >
-            <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
-              {{ (currentPage - 1) * itemsPerPage + index + 1 }}</td>
-            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+            <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900 dark:text-gray-100">
+              {{ (currentPage - 1) * itemsPerPage + index + 1 }}
+            </td>
+            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-gray-100">
               {{ category.name }}
             </td>
             <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium space-x-2">
               <button 
                 @click="openEditModal(category)"
-                class="inline-flex items-center px-3 py-1 rounded-md bg-yellow-100 text-yellow-800 hover:bg-yellow-200 transition-colors duration-200"
+                class="inline-flex items-center px-3 py-1 rounded-md bg-yellow-100 dark:bg-yellow-900/30 text-yellow-800 dark:text-yellow-200 hover:bg-yellow-200 dark:hover:bg-yellow-800/50 transition-colors duration-200"
               >
                 <SquarePenIcon class="h-4 w-4 mr-1" />
                 Edit
               </button>
               <button 
                 @click="() => confirmDelete(category)"
-                class="inline-flex items-center px-3 py-1 rounded-md bg-red-100 text-red-800 hover:bg-red-200 transition-colors duration-200"
+                class="inline-flex items-center px-3 py-1 rounded-md bg-red-100 dark:bg-red-900/30 text-red-800 dark:text-red-200 hover:bg-red-200 dark:hover:bg-red-800/50 transition-colors duration-200"
               >
                 <Trash2Icon class="h-4 w-4 mr-1" />
                 Delete
@@ -332,26 +332,26 @@ onMounted(() => {
       </table>
 
       <!-- Pagination -->
-      <div class="bg-white px-4 py-3 flex items-center justify-between border-t border-gray-200 sm:px-6">
+      <div class="bg-white dark:bg-gray-900 px-4 py-3 flex items-center justify-between border-t border-gray-200 dark:border-gray-700 sm:px-6">
         <div class="flex-1 flex justify-between sm:hidden">
           <button
             @click="prevPage"
             :disabled="currentPage === 1"
-            class="relative inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50"
+            class="relative inline-flex items-center px-4 py-2 border border-gray-300 dark:border-gray-600 text-sm font-medium rounded-md text-gray-700 dark:text-gray-200 bg-white dark:bg-gray-800 hover:bg-gray-50 dark:hover:bg-gray-700"
           >
             Previous
           </button>
           <button
             @click="nextPage"
             :disabled="currentPage === totalPages"
-            class="ml-3 relative inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50"
+            class="ml-3 relative inline-flex items-center px-4 py-2 border border-gray-300 dark:border-gray-600 text-sm font-medium rounded-md text-gray-700 dark:text-gray-200 bg-white dark:bg-gray-800 hover:bg-gray-50 dark:hover:bg-gray-700"
           >
             Next
           </button>
         </div>
         <div class="hidden sm:flex-1 sm:flex sm:items-center sm:justify-between">
           <div>
-            <p class="text-sm text-gray-700">
+            <p class="text-sm text-gray-700 dark:text-gray-300">
               Showing 
               <span class="font-medium">{{ (currentPage - 1) * itemsPerPage + 1 }}</span>
               to 
@@ -366,7 +366,7 @@ onMounted(() => {
               <button
                 @click="prevPage"
                 :disabled="currentPage === 1"
-                class="relative inline-flex items-center px-2 py-2 rounded-l-md border border-gray-300 bg-white text-sm font-medium text-gray-500 hover:bg-gray-50"
+                class="relative inline-flex items-center px-2 py-2 rounded-l-md border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 text-sm font-medium text-gray-500 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700"
               >
                 <span class="sr-only">Previous</span>
                 &lt;
@@ -378,8 +378,8 @@ onMounted(() => {
                 :key="page"
                 @click="goToPage(page)"
                 :class="{
-                  'bg-blue-50 border-blue-500 text-blue-600 z-10': currentPage === page,
-                  'bg-white border-gray-300 text-gray-500 hover:bg-gray-50': currentPage !== page
+                  'bg-blue-50 dark:bg-blue-900/30 border-blue-500 dark:border-blue-600 text-blue-600 dark:text-blue-200 z-10': currentPage === page,
+                  'bg-white dark:bg-gray-800 border-gray-300 dark:border-gray-600 text-gray-500 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700': currentPage !== page
                 }"
                 class="relative inline-flex items-center px-4 py-2 border text-sm font-medium"
               >
@@ -389,7 +389,7 @@ onMounted(() => {
               <button
                 @click="nextPage"
                 :disabled="currentPage === totalPages"
-                class="relative inline-flex items-center px-2 py-2 rounded-r-md border border-gray-300 bg-white text-sm font-medium text-gray-500 hover:bg-gray-50"
+                class="relative inline-flex items-center px-2 py-2 rounded-r-md border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 text-sm font-medium text-gray-500 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700"
               >
                 <span class="sr-only">Next</span>
                 &gt;
