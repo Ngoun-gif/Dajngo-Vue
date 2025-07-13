@@ -12,19 +12,19 @@ export async function fetchCategories(): Promise<Category[]> {
   return response.data
 }
 
-// Create a new category
-export async function createCategories(data: { name: string }): Promise<Category> {
+// Create a new category (omit 'id' since it's assigned by the backend)
+export async function createCategories(data: Omit<Category, 'id'>): Promise<Category> {
   const response = await api.post<Category>('categories/', data)
   return response.data
 }
 
-// Update a category
-export async function updateCategories(id: number, data: { name: string }): Promise<Category> {
+// Update an existing category (partial, in case only some fields change)
+export async function updateCategories(id: number, data: Partial<Omit<Category, 'id'>>): Promise<Category> {
   const response = await api.put<Category>(`categories/${id}/`, data)
   return response.data
 }
 
-// Delete a category
+// Delete a category by ID
 export async function deleteCategories(id: number): Promise<void> {
   await api.delete(`categories/${id}/`)
 }

@@ -12,7 +12,7 @@ import {
   SquarePen,
   Trash2,
   PackagePlus,
-  Upload
+  Upload, User
 } from 'lucide-vue-next'
 import {
   Dialog,
@@ -410,15 +410,17 @@ onMounted(() => {
               <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-gray-100">
                 {{ product.description }}
               </td>
-              <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-gray-100">
-                <img 
-                  v-if="product.image" 
-                  :src="product.image.startsWith('http') ? product.image : `/media/${product.image}`"
-                  alt="product image" 
-                  class="w-16 h-16 object-cover rounded-md border border-gray-200 dark:border-gray-600"
-                />
-                <span v-else class="text-gray-400 dark:text-gray-500 italic">No image</span>
-              </td>
+               <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-gray-100">
+              <img
+                v-if="product.image"
+                :src="product.image.startsWith('http') ? product.image : `/media/${product.image}`"
+                alt="teacher photo"
+                class="w-15 h-15 rounded-full object-cover border border-gray-200 dark:border-gray-600"
+              />
+              <div v-else class="w-10 h-10 rounded-full bg-gray-200 dark:bg-gray-700 flex items-center justify-center">
+                <User class="w-5 h-5 text-gray-400" />
+              </div>
+            </td>
 
               <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-gray-100">
                 <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 dark:bg-blue-900 text-blue-800 dark:text-blue-200">

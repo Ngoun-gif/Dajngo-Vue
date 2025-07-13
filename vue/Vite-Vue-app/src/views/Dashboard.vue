@@ -4,27 +4,33 @@ import { List, Box, LayoutGrid, ShoppingCart, DollarSign } from 'lucide-vue-next
 import { fetchCategories } from '@/services/categoryService'
 import { fetchProducts } from '@/services/productService'
 import { ref, onMounted } from 'vue'
+import {fetchTeachers} from "@/services/teacherService.ts";
+import {fetchSubjects} from "@/services/subjectService.ts";
 
 // Reactive data
 const categoriesCount = ref(0)
 const productsCount = ref(0)
-const ordersCount = ref(0)
-const revenueTotal = ref(0)
+const teachersCount = ref(0)
+const subjectsCount = ref(0)
 const loading = ref(true)
 const error = ref<string | null>(null)
 
 // Fetch data on component mount
 onMounted(async () => {
   try {
-    const [categories, products] = await Promise.all([
+    const [categories, products, teachers,subjects] = await Promise.all([
       fetchCategories(),
-      fetchProducts()
+      fetchProducts(),
+      fetchTeachers(),
+      fetchSubjects()
     ])
     categoriesCount.value = categories.length
     productsCount.value = products.length
+    teachersCount.value= teachers.length
+    subjectsCount.value = subjects.length
+
     // Mock data for orders and revenue - replace with actual API calls
-    ordersCount.value = 24
-    revenueTotal.value = 1850
+
   } catch (err) {
     error.value = 'Failed to load dashboard data'
     console.error(err)
@@ -92,11 +98,11 @@ onMounted(async () => {
         </CardContent>
       </Card>
 
-      <!-- Orders Card -->
+      <!-- Teacher Card -->
       <Card class="bg-white dark:bg-gray-800 shadow-sm dark:shadow-none dark:border dark:border-gray-700">
         <CardHeader class="flex flex-row items-center justify-between pb-2 space-y-0">
           <CardTitle class="text-sm font-medium text-gray-600 dark:text-gray-300">
-            Orders
+            Teachers
           </CardTitle>
           <ShoppingCart class="h-4 w-4 text-gray-500 dark:text-gray-400" />
         </CardHeader>
@@ -106,7 +112,7 @@ onMounted(async () => {
           </div>
           <div v-else>
             <p class="text-2xl font-bold text-gray-900 dark:text-white">
-              {{ ordersCount }}
+              {{ teachersCount }}
             </p>
             <p class="text-xs text-muted-foreground dark:text-gray-400 mt-1">
               
@@ -115,11 +121,11 @@ onMounted(async () => {
         </CardContent>
       </Card>
 
-      <!-- Revenue Card -->
+      <!-- Subject Card -->
       <Card class="bg-white dark:bg-gray-800 shadow-sm dark:shadow-none dark:border dark:border-gray-700">
         <CardHeader class="flex flex-row items-center justify-between pb-2 space-y-0">
           <CardTitle class="text-sm font-medium text-gray-600 dark:text-gray-300">
-            Revenue
+            Subjects
           </CardTitle>
           <DollarSign class="h-4 w-4 text-gray-500 dark:text-gray-400" />
         </CardHeader>
@@ -129,7 +135,7 @@ onMounted(async () => {
           </div>
           <div v-else>
             <p class="text-2xl font-bold text-gray-900 dark:text-white">
-              ${{ revenueTotal.toLocaleString() }}
+              {{ subjectsCount }}
             </p>
             <p class="text-xs text-muted-foreground dark:text-gray-400 mt-1">
              

@@ -81,8 +81,13 @@ const data = {
       items: [
         {
           title: 'Dashboard',
-          url: '/dashboard',
+          url: '/dashboard', 
         },
+        {
+          title: 'User',
+          url: '/user',
+        },
+
         {
           title: 'Categories',
           url: '/category',
@@ -92,11 +97,11 @@ const data = {
           url: '/product',
         },
         {
-          title: 'Teacher',
+          title: 'Teachers',
           url: '/teacher',
         },
         {
-          title: 'Subject',
+          title: 'Subjects',
           url: '/subject',
         }
       ],

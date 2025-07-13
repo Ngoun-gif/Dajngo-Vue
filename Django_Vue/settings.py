@@ -60,6 +60,25 @@ CORS_ALLOWED_ORIGINS = [
     "http://localhost:5173",  # Vue.js development server
     'http://127.0.0.1:5173',  # Vue.js development server
 ]
+# Add CSRF trusted origins
+CSRF_TRUSTED_ORIGINS = [
+    "http://localhost:5173",
+    "http://127.0.0.1:5173",
+]
+
+# Allow all origins during development (adjust for production)
+CORS_ALLOW_ALL_ORIGINS = True
+
+DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+CSRF_COOKIE_SAMESITE = 'None'
+SESSION_COOKIE_SAMESITE = 'None'
+CSRF_COOKIE_SECURE = True  # Only in production with HTTPS
+SESSION_COOKIE_SECURE = True
+CSRF_COOKIE_DOMAIN = 'localhost'
+CORS_ALLOW_CREDENTIALS = True # Allow cookies to be sent with CORS requests
+
+
+
 ROOT_URLCONF = 'Django_Vue.urls'
 
 TEMPLATES = [
@@ -134,16 +153,6 @@ STATIC_URL = 'static/'
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/5.2/ref/settings/#default-auto-field
-
-DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
-CSRF_COOKIE_SAMESITE = 'None'
-SESSION_COOKIE_SAMESITE = 'None'
-CSRF_COOKIE_SECURE = True  # Only in production with HTTPS
-SESSION_COOKIE_SECURE = True
-CSRF_COOKIE_DOMAIN = 'localhost'
-CORS_ALLOW_CREDENTIALS = True # Allow cookies to be sent with CORS requests
-
-
 
 import os
 from pathlib import Path

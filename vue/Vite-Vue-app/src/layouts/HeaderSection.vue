@@ -15,11 +15,15 @@ const route = useRoute()
 
 const currentPageName = computed(() => {
   const path = route.path
+
   if (path.includes('dashboard')) return 'Dashboard'
   if (path.includes('category')) return 'Category'
   if (path.includes('product')) return 'Product'
   if (path.includes('subject')) return "Subject"
-  return 'Unknown Page'
+  if (path.includes('teacher')) return "Teacher"
+  if (path.includes('user')) return "User"
+
+  return 'Dashboard'
 })
 </script>
 

@@ -1,4 +1,6 @@
 from rest_framework.routers import DefaultRouter
+
+from backend.api.views import UserViewSet
 from backend.api.views.category import CategoryViewSet
 from backend.api.views.product import ProductViewSet
 from backend.api.views.subject import SubjectViewSet
@@ -10,5 +12,7 @@ router.register(r'products', ProductViewSet)
 
 router.register(r'subjects', SubjectViewSet)
 router.register(r'teachers', TeacherViewSet)
+
+router.register(r'users', UserViewSet)
 
 urlpatterns = router.urls

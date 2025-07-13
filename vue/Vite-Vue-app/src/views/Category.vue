@@ -314,7 +314,8 @@ onMounted(() => {
             <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium space-x-2">
               <button 
                 @click="openEditModal(category)"
-                class="inline-flex items-center px-3 py-1 rounded-md bg-yellow-100 dark:bg-yellow-900/30 text-yellow-800 dark:text-yellow-200 hover:bg-yellow-200 dark:hover:bg-yellow-800/50 transition-colors duration-200"
+                class="inline-flex items-center px-3 py-1 rounded-md
+                      bg-yellow-100 dark:bg-yellow-900/30 text-yellow-800 dark:text-yellow-200 hover:bg-yellow-200 dark:hover:bg-yellow-800/50 transition-colors duration-200"
               >
                 <SquarePenIcon class="h-4 w-4 mr-1" />
                 Edit
