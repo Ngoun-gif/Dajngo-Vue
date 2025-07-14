@@ -109,11 +109,11 @@ const updateDateFromSelects = () => {
     const month = parseInt(selectedMonth.value) + 1 // CalendarDate months are 1-indexed
     const year = parseInt(selectedYear.value)
     const currentDay = dateOfBirthModel.value?.day || 1
-    
+
     // Ensure the day is valid for the selected month/year
     const lastDayOfMonth = new Date(year, month, 0).getDate()
     const safeDay = Math.min(currentDay, lastDayOfMonth)
-    
+
     dateOfBirthModel.value = new CalendarDate(year, month, safeDay)
   }
 }
@@ -715,9 +715,9 @@ onMounted(() => {
                         <SelectValue placeholder="Month" />
                       </SelectTrigger>
                       <SelectContent>
-                        <SelectItem 
-                          v-for="(month, index) in months" 
-                          :key="index" 
+                        <SelectItem
+                          v-for="(month, index) in months"
+                          :key="index"
                           :value="index.toString()"
                         >
                           {{ month }}
@@ -733,9 +733,9 @@ onMounted(() => {
                         <SelectValue placeholder="Year" />
                       </SelectTrigger>
                       <SelectContent>
-                        <SelectItem 
-                          v-for="year in years" 
-                          :key="year" 
+                        <SelectItem
+                          v-for="year in years"
+                          :key="year"
                           :value="year.toString()"
                         >
                           {{ year }}

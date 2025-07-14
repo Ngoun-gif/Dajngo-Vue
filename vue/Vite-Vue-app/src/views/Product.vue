@@ -214,10 +214,8 @@ async function handleSubmit() {
     payload.append("stock", formData.value.stock.toString())
     payload.append("description", formData.value.description)
 
-    if (formData.value.image) {
+    if (formData.value.image instanceof File) {
       payload.append("image", formData.value.image)
-    } else if (formData.value.image === null) {
-      payload.append("image", "")
     }
 
     if (dialogMode.value === "create") {

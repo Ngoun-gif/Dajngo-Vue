@@ -10,7 +10,10 @@ import {
 import {
   SquarePen,
   Trash2,
-  UserPlus
+  UserPlus,
+  Eye,
+  EyeOff,
+  Key
 } from 'lucide-vue-next'
 import {
   Dialog,
@@ -34,21 +37,28 @@ import {
 const SquarePenIcon = SquarePen
 const Trash2Icon = Trash2
 const UserPlusIcon = UserPlus
+const EyeIcon = Eye
+const EyeOffIcon = EyeOff
+const KeyIcon = Key
 
-// State
 const users = ref<User[]>([])
 const loading = ref(true)
 const error = ref<string | null>(null)
 const searchQuery = ref('')
+
 const currentPage = ref(1)
 const itemsPerPage = ref(10)
+
 const showCreateModal = ref(false)
 const showEditModal = ref(false)
 const currentEditingUser = ref<User | null>(null)
-const formErrors = ref<Record<string, string[]>>({})
 
-// Form models
-const newUser = ref({
+// Password visibility states
+const showPassword = ref(false)
+const showEditPassword = ref(false)
+const enablePasswordEdit = ref(false)
+
+const newUser = ref<Omit<User, 'id'>>({
   username: '',
   email: '',
   password: '',
@@ -56,24 +66,20 @@ const newUser = ref({
   is_active: true
 })
 
-const editingUser = ref({
+const editingUser = ref<Partial<Omit<User, 'id'>>>({
   username: '',
   email: '',
-  current_password: '',
-  new_password: '',
-  confirm_password: '',
+  password: '',
   is_staff: false,
-  is_active: true,
-  changingPassword: false
+  is_active: true
 })
 
-// Computed properties
 const filteredUsers = computed(() => {
-  if (!searchQuery.value?.trim()) return users.value
-  const searchTerm = searchQuery.value.toLowerCase().trim()
+  if (!searchQuery.value) return users.value
   return users.value.filter(user =>
-    user.username?.toLowerCase().includes(searchTerm) ||
-    user.email?.toLowerCase().includes(searchTerm))
+    user.username.toLowerCase().includes(searchQuery.value.toLowerCase()) ||
+    user.email.toLowerCase().includes(searchQuery.value.toLowerCase()) ||
+    user.id.toString().includes(searchQuery.value))
 })
 
 const paginatedUsers = computed(() => {
@@ -86,22 +92,20 @@ const totalPages = computed(() => {
   return Math.ceil(filteredUsers.value.length / itemsPerPage.value)
 })
 
-// Methods
-async function load() {
+async function loadUsers() {
   loading.value = true
   error.value = null
   try {
     users.value = await fetchUsers()
   } catch (err) {
-    console.error('Failed to load users:', err)
+    console.error(err)
     error.value = 'Failed to load users. Please try again later.'
-    await showErrorToast('Failed to load users')
   } finally {
     loading.value = false
   }
 }
 
-function resetForms() {
+function openCreateModal() {
   newUser.value = {
     username: '',
     email: '',
@@ -109,43 +113,7 @@ function resetForms() {
     is_staff: false,
     is_active: true
   }
-  editingUser.value = {
-    username: '',
-    email: '',
-    current_password: '',
-    new_password: '',
-    confirm_password: '',
-    is_staff: false,
-    is_active: true,
-    changingPassword: false
-  }
-  formErrors.value = {}
-}
-
-async function showSuccessToast(message: string) {
-  await Swal.fire({
-    position: 'top-end',
-    title: 'Success!',
-    text: message,
-    icon: 'success',
-    timer: 1500,
-    showConfirmButton: false
-  })
-}
-
-async function showErrorToast(message: string) {
-  await Swal.fire({
-    position: 'top-end',
-    title: 'Error!',
-    text: message,
-    icon: 'error',
-    timer: 1500,
-    showConfirmButton: false
-  })
-}
-
-function openCreateModal() {
-  resetForms()
+  showPassword.value = false
   showCreateModal.value = true
 }
 
@@ -158,26 +126,38 @@ function openEditModal(user: User) {
   editingUser.value = {
     username: user.username,
     email: user.email,
-    current_password: '',
-    new_password: '',
-    confirm_password: '',
+    password: '', // Don't show actual password
     is_staff: user.is_staff,
-    is_active: user.is_active,
-    changingPassword: false
+    is_active: user.is_active
   }
-  formErrors.value = {}
+  enablePasswordEdit.value = false
+  showEditPassword.value = false
   showEditModal.value = true
 }
 
 function closeEditModal() {
   showEditModal.value = false
   currentEditingUser.value = null
-  formErrors.value = {}
+  editingUser.value = {
+    username: '',
+    email: '',
+    password: '',
+    is_staff: false,
+    is_active: true
+  }
 }
 
 async function handleCreate() {
   if (!newUser.value.username.trim() || !newUser.value.email.trim() || !newUser.value.password.trim()) {
-    await showErrorToast('Username, email and password are required')
+    await Swal.fire({
+      position: "top-end",
+      title: 'Error!',
+      text: 'Username, email and password are required',
+      icon: 'error',
+      timer: 1500,
+      showConfirmButton: false,
+
+    })
     return
   }
 
@@ -185,74 +165,82 @@ async function handleCreate() {
     const createdUser = await createUser(newUser.value)
     users.value.unshift(createdUser)
     closeCreateModal()
-    await showSuccessToast('User created successfully')
+    await Swal.fire({
+      position: "top-end",
+      title: 'Success!',
+      text: 'User created successfully',
+      icon: 'success',
+      timer: 1500,
+      showConfirmButton: false,
+
+
+    })
     currentPage.value = 1
-  } catch (err: any) {
-    console.error('Failed to create user:', err)
-    if (err.response?.data) {
-      formErrors.value = err.response.data
-    }
-    await showErrorToast('Failed to create user')
+  } catch (err) {
+    console.error(err)
+    await Swal.fire({
+      position: "top-end",
+      title: 'Error!',
+      text: 'Failed to create user',
+      icon: 'error',
+      timer: 1500,
+      showConfirmButton: false,
+
+
+    })
   }
 }
 
 async function handleUpdate() {
   if (!currentEditingUser.value) return
 
-  // Reset errors
-  formErrors.value = {}
+  // If password edit is enabled but no password provided
+  if (enablePasswordEdit.value && !editingUser.value.password?.trim()) {
+    await Swal.fire({
+      position: "top-end",
+      title: 'Error!',
+      text: 'Please enter a new password or disable password change',
+      icon: 'error',
+      timer: 1500,
+      showConfirmButton: false,
 
-  // Validate required fields
-  if (!editingUser.value.username.trim() || !editingUser.value.email.trim()) {
-    await showErrorToast('Username and email are required')
+    })
     return
   }
 
-  // Current password is always required
-  if (!editingUser.value.current_password.trim()) {
-    formErrors.value.current_password = ['Current password is required']
-    return
-  }
-
-  // If changing password, validate new password fields
-  if (editingUser.value.changingPassword) {
-    if (!editingUser.value.new_password.trim()) {
-      formErrors.value.password = ['New password is required']
-      return
-    }
-    if (editingUser.value.new_password !== editingUser.value.confirm_password) {
-      await showErrorToast('New passwords do not match')
-      return
-    }
+  // If password edit is not enabled, remove password from the update data
+  const updateData = { ...editingUser.value }
+  if (!enablePasswordEdit.value) {
+    delete updateData.password
   }
 
   try {
-    const payload: any = {
-      username: editingUser.value.username,
-      email: editingUser.value.email,
-      current_password: editingUser.value.current_password,
-      is_staff: editingUser.value.is_staff,
-      is_active: editingUser.value.is_active
-    }
-
-    // Only include new password if changing it
-    if (editingUser.value.changingPassword) {
-      payload.password = editingUser.value.new_password
-    }
-
-    const updated = await updateUser(currentEditingUser.value.id, payload)
+    const updated = await updateUser(currentEditingUser.value.id, updateData)
     const index = users.value.findIndex(u => u.id === currentEditingUser.value?.id)
     if (index !== -1) {
       users.value.splice(index, 1, updated)
     }
     closeEditModal()
-    await showSuccessToast('User updated successfully')
-  } catch (err: any) {
-    console.error('Failed to update user:', err)
-    if (err.response?.data) {
-      formErrors.value = err.response.data
-    }
-    await showErrorToast('Failed to update user')
+    await Swal.fire({
+      position: "top-end",
+      title: 'Success!',
+      text: 'User updated successfully',
+      icon: 'success',
+      timer: 1500,
+      showConfirmButton: false,
+
+    })
+  } catch (err) {
+    console.error(err)
+    await Swal.fire({
+      position: "top-end",
+      title: 'Error!',
+      text: 'Failed to update user',
+      icon: 'error',
+      timer: 1500,
+      showConfirmButton: false,
+
+    })
   }
 }
 
@@ -264,26 +252,41 @@ async function confirmDelete(user: User) {
     showCancelButton: true,
     confirmButtonColor: '#3085d6',
     cancelButtonColor: '#d33',
-    confirmButtonText: 'Yes, delete it!'
+    confirmButtonText: 'Yes, delete it!',
+
   })
 
   if (result.isConfirmed) {
     try {
       await deleteUser(user.id)
       users.value = users.value.filter(u => u.id !== user.id)
-      await showSuccessToast('User has been deleted')
+      await Swal.fire({
+        position: "top-end",
+        title: 'Deleted!',
+        text: 'User has been deleted.',
+        icon: 'success',
+        timer: 1500,
+        showConfirmButton: false,
 
+      })
       if (paginatedUsers.value.length === 0 && currentPage.value > 1) {
         currentPage.value--
       }
     } catch (err) {
-      console.error('Failed to delete user:', err)
-      await showErrorToast('Failed to delete user')
+      console.error(err)
+      await Swal.fire({
+        position: "top-end",
+        title: 'Error!',
+        text: 'Failed to delete user',
+        icon: 'error',
+        timer: 1500,
+        showConfirmButton: false,
+
+      })
     }
   }
 }
 
-// Pagination methods
 function nextPage() {
   if (currentPage.value < totalPages.value) currentPage.value++
 }
@@ -296,9 +299,8 @@ function goToPage(page: number) {
   if (page >= 1 && page <= totalPages.value) currentPage.value = page
 }
 
-// Lifecycle
 onMounted(() => {
-  load()
+  loadUsers()
 })
 </script>
 
@@ -336,12 +338,12 @@ onMounted(() => {
       <table class="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
         <thead class="bg-gray-50 dark:bg-gray-800">
           <tr>
-            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">#</th>
-            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Username</th>
-            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Email</th>
-            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Staff</th>
-            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Status</th>
-            <th class="px-6 py-3 text-right text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Actions</th>
+            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">ID</th>
+            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">USERNAME</th>
+            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">EMAIL</th>
+            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">STATUS</th>
+            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">ROLE</th>
+            <th class="px-6 py-3 text-right text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">ACTIONS</th>
           </tr>
         </thead>
         <tbody class="bg-white dark:bg-gray-900 divide-y divide-gray-200 dark:divide-gray-700">
@@ -382,33 +384,36 @@ onMounted(() => {
             <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-gray-100">
               {{ user.username }}
             </td>
-            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-700 dark:text-gray-300">
+            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-gray-100">
               {{ user.email }}
             </td>
-            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-700 dark:text-gray-300">
-              <span class="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium"
-                  :class="{
-                    'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200': user.is_staff,
-                    'bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200': !user.is_staff
-                  }">
-              {{ user.is_staff ? 'Yes' : 'No' }}
-            </span>
+            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-gray-100">
+              <span
+                :class="{
+                  'bg-green-100 dark:bg-green-900/30 text-green-800 dark:text-green-200': user.is_active,
+                  'bg-red-100 dark:bg-red-900/30 text-red-800 dark:text-red-200': !user.is_active
+                }"
+                class="px-2 py-1 rounded-full text-xs font-medium"
+              >
+                {{ user.is_active ? 'Active' : 'Inactive' }}
+              </span>
             </td>
-            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-700 dark:text-gray-300">
-              <span class="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium"
-                  :class="{
-                    'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200': user.is_active,
-                    'bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200': !user.is_active
-                  }">
-              {{ user.is_active ? 'Active' : 'Inactive' }}
-            </span>
+            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-gray-100">
+              <span
+                :class="{
+                  'bg-purple-100 dark:bg-purple-900/30 text-purple-800 dark:text-purple-200': user.is_staff,
+                  'bg-blue-100 dark:bg-blue-900/30 text-blue-800 dark:text-blue-200': !user.is_staff
+                }"
+                class="px-2 py-1 rounded-full text-xs font-medium"
+              >
+                {{ user.is_staff ? 'Staff' : 'Regular' }}
+              </span>
             </td>
             <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium space-x-2">
               <button
                 @click="openEditModal(user)"
                 class="inline-flex items-center px-3 py-1 rounded-md
-                bg-yellow-100 dark:bg-yellow-900/30 text-yellow-800 dark:text-yellow-200
-                hover:bg-yellow-200 dark:hover:bg-yellow-800/50 transition-colors duration-200"
+                      bg-yellow-100 dark:bg-yellow-900/30 text-yellow-800 dark:text-yellow-200 hover:bg-yellow-200 dark:hover:bg-yellow-800/50 transition-colors duration-200"
               >
                 <SquarePenIcon class="h-4 w-4 mr-1" />
                 Edit
@@ -499,77 +504,82 @@ onMounted(() => {
       <DialogContent class="sm:max-w-[600px]">
         <DialogHeader>
           <DialogTitle>Create New User</DialogTitle>
-          <DialogDescription>Add a new user to the system</DialogDescription>
+          <DialogDescription>
+            Add a new user to the system
+          </DialogDescription>
         </DialogHeader>
         <div class="grid gap-4 py-4">
           <div class="grid grid-cols-4 items-center gap-4">
-            <Label for="username" class="text-right">Username*</Label>
+            <Label for="username" class="text-right">
+              Username
+            </Label>
             <Input
               id="username"
               v-model="newUser.username"
               class="col-span-3"
               placeholder="Username"
-              required
-              :class="{ 'border-red-500 dark:border-red-500': formErrors.username }"
-              @input="formErrors.username = []"
             />
-            <p v-if="formErrors.username" class="col-span-3 col-start-2 text-sm text-red-500 dark:text-red-400">
-              {{ formErrors.username[0] }}
-            </p>
           </div>
           <div class="grid grid-cols-4 items-center gap-4">
-            <Label for="email" class="text-right">Email*</Label>
+            <Label for="email" class="text-right">
+              Email
+            </Label>
             <Input
               id="email"
               v-model="newUser.email"
               type="email"
               class="col-span-3"
               placeholder="Email"
-              required
-              :class="{ 'border-red-500 dark:border-red-500': formErrors.email }"
-              @input="formErrors.email = []"
             />
-            <p v-if="formErrors.email" class="col-span-3 col-start-2 text-sm text-red-500 dark:text-red-400">
-              {{ formErrors.email[0] }}
-            </p>
           </div>
           <div class="grid grid-cols-4 items-center gap-4">
-            <Label for="password" class="text-right">Password*</Label>
-            <Input
-              id="password"
-              v-model="newUser.password"
-              type="password"
-              class="col-span-3"
-              placeholder="Password"
-              required
-              :class="{ 'border-red-500 dark:border-red-500': formErrors.password }"
-              @input="formErrors.password = []"
-            />
-            <p v-if="formErrors.password" class="col-span-3 col-start-2 text-sm text-red-500 dark:text-red-400">
-              {{ formErrors.password[0] }}
-            </p>
+            <Label for="password" class="text-right">
+              Password
+            </Label>
+            <div class="col-span-3 relative">
+              <Input
+                id="password"
+                v-model="newUser.password"
+                :type="showPassword ? 'text' : 'password'"
+                class="w-full pr-10"
+                placeholder="Password"
+              />
+              <button
+                type="button"
+                class="absolute inset-y-0 right-0 pr-3 flex items-center"
+                @click="showPassword = !showPassword"
+              >
+                <component :is="showPassword ? EyeOffIcon : EyeIcon" class="h-5 w-5 text-gray-400" />
+              </button>
+            </div>
           </div>
           <div class="grid grid-cols-4 items-center gap-4">
-            <Label for="is_staff" class="text-right">Staff Member</Label>
+            <Label for="is_staff" class="text-right">
+              Staff Member
+            </Label>
             <input
               id="is_staff"
-              type="checkbox"
               v-model="newUser.is_staff"
-              class="col-span-3 h-4 w-4 rounded border-gray-300 text-blue-600 focus:ring-blue-500"
+              type="checkbox"
+              class="h-4 w-4 rounded border-gray-300 text-blue-600 focus:ring-blue-500"
             />
           </div>
           <div class="grid grid-cols-4 items-center gap-4">
-            <Label for="is_active" class="text-right">Active</Label>
+            <Label for="is_active" class="text-right">
+              Active
+            </Label>
             <input
               id="is_active"
-              type="checkbox"
               v-model="newUser.is_active"
-              class="col-span-3 h-4 w-4 rounded border-gray-300 text-blue-600 focus:ring-blue-500"
+              type="checkbox"
+              class="h-4 w-4 rounded border-gray-300 text-blue-600 focus:ring-blue-500"
             />
           </div>
         </div>
         <DialogFooter>
-          <Button variant="outline" @click="closeCreateModal">Cancel</Button>
+          <Button variant="outline" @click="closeCreateModal">
+            Cancel
+          </Button>
           <Button
             type="submit"
             @click="handleCreate"
@@ -586,133 +596,102 @@ onMounted(() => {
       <DialogContent class="sm:max-w-[600px]">
         <DialogHeader>
           <DialogTitle>Edit User</DialogTitle>
-          <DialogDescription>Update user details</DialogDescription>
+          <DialogDescription>
+            Update the user details
+          </DialogDescription>
         </DialogHeader>
         <div class="grid gap-4 py-4">
           <div class="grid grid-cols-4 items-center gap-4">
-            <Label for="edit-username" class="text-right">Username*</Label>
+            <Label for="edit-username" class="text-right">
+              Username
+            </Label>
             <Input
               id="edit-username"
               v-model="editingUser.username"
               class="col-span-3"
               placeholder="Username"
-              required
-              :class="{ 'border-red-500 dark:border-red-500': formErrors.username }"
-              @input="formErrors.username = []"
             />
-            <p v-if="formErrors.username" class="col-span-3 col-start-2 text-sm text-red-500 dark:text-red-400">
-              {{ formErrors.username[0] }}
-            </p>
           </div>
           <div class="grid grid-cols-4 items-center gap-4">
-            <Label for="edit-email" class="text-right">Email*</Label>
+            <Label for="edit-email" class="text-right">
+              Email
+            </Label>
             <Input
               id="edit-email"
               v-model="editingUser.email"
               type="email"
               class="col-span-3"
               placeholder="Email"
-              required
-              :class="{ 'border-red-500 dark:border-red-500': formErrors.email }"
-              @input="formErrors.email = []"
             />
-            <p v-if="formErrors.email" class="col-span-3 col-start-2 text-sm text-red-500 dark:text-red-400">
-              {{ formErrors.email[0] }}
-            </p>
           </div>
-
-          <!-- Current Password Field -->
           <div class="grid grid-cols-4 items-center gap-4">
-            <Label for="edit-current_password" class="text-right">
-              <span v-if="!editingUser.changingPassword">Current Password*</span>
-              <span v-else>Verify Current Password*</span>
+            <Label for="edit-password" class="text-right">
+              Password
             </Label>
-            <div class="col-span-3 space-y-1">
-              <Input
-                id="edit-current_password"
-                v-model="editingUser.current_password"
-                type="password"
-                :placeholder="editingUser.changingPassword ? 'Enter current password to verify changes' : 'Enter current password'"
-                required
-                :class="{ 'border-red-500 dark:border-red-500': formErrors.current_password }"
-                @input="formErrors.current_password = []"
-              />
-              <p v-if="formErrors.current_password" class="text-sm text-red-500 dark:text-red-400">
-                {{ formErrors.current_password[0] }}
+            <div class="col-span-3 space-y-2">
+              <div class="flex items-center">
+                <Input
+                  id="edit-password"
+                  :value="enablePasswordEdit ? editingUser.password : '******'"
+                  :disabled="!enablePasswordEdit"
+                  class="flex-1 pr-10"
+                  placeholder="New password"
+                  :type="showEditPassword ? 'text' : 'password'"
+                  @input="editingUser.password = ($event.target as HTMLInputElement).value"
+                />
+                <button
+                  type="button"
+                  class="ml-2 p-2 rounded-md hover:bg-gray-100 dark:hover:bg-gray-800"
+                  @click="enablePasswordEdit = !enablePasswordEdit"
+                  :title="enablePasswordEdit ? 'Cancel password change' : 'Change password'"
+                >
+                  <KeyIcon class="h-5 w-5" :class="enablePasswordEdit ? 'text-blue-500' : 'text-gray-400'" />
+                </button>
+                <button
+                  v-if="enablePasswordEdit"
+                  type="button"
+                  class="ml-1 p-2 rounded-md hover:bg-gray-100 dark:hover:bg-gray-800"
+                  @click="showEditPassword = !showEditPassword"
+                >
+                  <component :is="showEditPassword ? EyeOffIcon : EyeIcon" class="h-5 w-5 text-gray-400" />
+                </button>
+              </div>
+              <p v-if="!enablePasswordEdit" class="text-xs text-gray-500 dark:text-gray-400">
+                Password is hidden. Click the key icon to change.
               </p>
             </div>
           </div>
-
-
-          <!-- Password Change Toggle -->
           <div class="grid grid-cols-4 items-center gap-4">
-            <Label for="edit-change_password" class="text-right">Change Password?</Label>
-            <input
-              id="edit-change_password"
-              type="checkbox"
-              v-model="editingUser.changingPassword"
-              class="col-span-3 h-4 w-4 rounded border-gray-300 text-blue-600 focus:ring-blue-500"
-            />
-          </div>
-
-          <!-- New Password Fields (shown when changing password) -->
-          <template v-if="editingUser.changingPassword">
-            <div class="grid grid-cols-4 items-center gap-4">
-              <Label for="edit-new_password" class="text-right">New Password*</Label>
-              <div class="col-span-3 space-y-1">
-                <Input
-                  id="edit-new_password"
-                  v-model="editingUser.new_password"
-                  type="password"
-                  placeholder="Enter new password"
-                  required
-                  :class="{ 'border-red-500 dark:border-red-500': formErrors.password }"
-                  @input="formErrors.password = []"
-                />
-                <p v-if="formErrors.password" class="text-sm text-red-500 dark:text-red-400">
-                  {{ formErrors.password[0] }}
-                </p>
-              </div>
-            </div>
-            <div class="grid grid-cols-4 items-center gap-4">
-              <Label for="edit-confirm_password" class="text-right">Confirm New Password*</Label>
-              <Input
-                id="edit-confirm_password"
-                v-model="editingUser.confirm_password"
-                type="password"
-                class="col-span-3"
-                placeholder="Re-enter new password"
-                required
-              />
-            </div>
-          </template>
-
-          <div class="grid grid-cols-4 items-center gap-4">
-            <Label for="edit-is_staff" class="text-right">Staff Member</Label>
+            <Label for="edit-is_staff" class="text-right">
+              Staff Member
+            </Label>
             <input
               id="edit-is_staff"
-              type="checkbox"
               v-model="editingUser.is_staff"
-              class="col-span-3 h-4 w-4 rounded border-gray-300 text-blue-600 focus:ring-blue-500"
+              type="checkbox"
+              class="h-4 w-4 rounded border-gray-300 text-blue-600 focus:ring-blue-500"
             />
           </div>
           <div class="grid grid-cols-4 items-center gap-4">
-            <Label for="edit-is_active" class="text-right">Active</Label>
+            <Label for="edit-is_active" class="text-right">
+              Active
+            </Label>
             <input
               id="edit-is_active"
-              type="checkbox"
               v-model="editingUser.is_active"
-              class="col-span-3 h-4 w-4 rounded border-gray-300 text-blue-600 focus:ring-blue-500"
+              type="checkbox"
+              class="h-4 w-4 rounded border-gray-300 text-blue-600 focus:ring-blue-500"
             />
           </div>
         </div>
         <DialogFooter>
-          <Button variant="outline" @click="closeEditModal">Cancel</Button>
+          <Button variant="outline" @click="closeEditModal">
+            Cancel
+          </Button>
           <Button
             type="submit"
             @click="handleUpdate"
-            :disabled="!editingUser.username.trim() || !editingUser.email.trim() || !editingUser.current_password.trim() ||
-                      (editingUser.changingPassword && (!editingUser.new_password.trim() || editingUser.new_password !== editingUser.confirm_password))"
+            :disabled="!editingUser.username?.trim() || !editingUser.email?.trim() || (enablePasswordEdit && !editingUser.password?.trim())"
           >
             Save Changes
           </Button>

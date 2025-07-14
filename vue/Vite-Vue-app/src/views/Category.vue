@@ -1,18 +1,18 @@
 <script setup lang="ts">
 import { ref, computed, onMounted } from 'vue'
 import Swal from 'sweetalert2'
-import { 
+import {
   MagnifyingGlassIcon,
   ArrowPathIcon,
   ExclamationTriangleIcon,
   FolderIcon
 } from '@heroicons/vue/24/outline'
-import { 
+import {
   SquarePen,
   Trash2,
   PackagePlus
 } from 'lucide-vue-next'
-import { 
+import {
   Dialog,
   DialogContent,
   DialogDescription,
@@ -23,12 +23,12 @@ import {
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
-import { 
-  fetchCategories, 
-  createCategories, 
-  updateCategories, 
-  deleteCategories, 
-  type Category 
+import {
+  fetchCategories,
+  createCategories,
+  updateCategories,
+  deleteCategories,
+  type Category
 } from '@/services/categoryService'
 
 const SquarePenIcon = SquarePen
@@ -52,7 +52,7 @@ const editingName = ref('')
 
 const filteredCategories = computed(() => {
   if (!searchQuery.value) return categories.value
-  return categories.value.filter(category => 
+  return categories.value.filter(category =>
     category.name.toLowerCase().includes(searchQuery.value.toLowerCase()) ||
     category.id.toString().includes(searchQuery.value))
 })
@@ -103,7 +103,7 @@ function closeEditModal() {
 
 async function handleCreate() {
   if (!newCategoryName.value.trim()) return
-  
+
   try {
     const newCat = await createCategories({ name: newCategoryName.value.trim() })
     categories.value.unshift(newCat)
@@ -115,8 +115,7 @@ async function handleCreate() {
       icon: 'success',
       timer: 1500,
       showConfirmButton: false,
-      background: 'hsl(var(--background))',
-      color: 'hsl(var(--foreground))'
+   
     })
     currentPage.value = 1
   } catch (err) {
@@ -128,18 +127,17 @@ async function handleCreate() {
       icon: 'error',
       timer: 1500,
       showConfirmButton: false,
-      background: 'hsl(var(--background))',
-      color: 'hsl(var(--foreground))'
+
     })
   }
 }
 
 async function handleUpdate() {
   if (!currentEditingCategory.value || !editingName.value.trim()) return
-  
+
   try {
-    const updated = await updateCategories(currentEditingCategory.value.id, { 
-      name: editingName.value.trim() 
+    const updated = await updateCategories(currentEditingCategory.value.id, {
+      name: editingName.value.trim()
     })
     const index = categories.value.findIndex(c => c.id === currentEditingCategory.value?.id)
     if (index !== -1) {
@@ -153,8 +151,7 @@ async function handleUpdate() {
       icon: 'success',
       timer: 1500,
       showConfirmButton: false,
-      background: 'hsl(var(--background))',
-      color: 'hsl(var(--foreground))'
+
     })
   } catch (err) {
     console.error(err)
@@ -165,8 +162,7 @@ async function handleUpdate() {
       icon: 'error',
       timer: 1500,
       showConfirmButton: false,
-      background: 'hsl(var(--background))',
-      color: 'hsl(var(--foreground))'
+
     })
   }
 }
@@ -180,8 +176,7 @@ async function confirmDelete(category: Category) {
     confirmButtonColor: '#3085d6',
     cancelButtonColor: '#d33',
     confirmButtonText: 'Yes, delete it!',
-    background: 'hsl(var(--background))',
-    color: 'hsl(var(--foreground))'
+
   })
 
   if (result.isConfirmed) {
@@ -195,8 +190,7 @@ async function confirmDelete(category: Category) {
         icon: 'success',
         timer: 1500,
         showConfirmButton: false,
-        background: 'hsl(var(--background))',
-        color: 'hsl(var(--foreground))'
+
       })
       if (paginatedCategories.value.length === 0 && currentPage.value > 1) {
         currentPage.value--
@@ -210,8 +204,7 @@ async function confirmDelete(category: Category) {
         icon: 'error',
         timer: 1500,
         showConfirmButton: false,
-        background: 'hsl(var(--background))',
-        color: 'hsl(var(--foreground))'
+
       })
     }
   }
@@ -250,7 +243,7 @@ onMounted(() => {
           type="text"
           placeholder="Search categories..."
           class="border border-gray-300 dark:border-gray-600 rounded-md px-3 py-2 w-full pl-10 focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100"
-          @input="currentPage = 1" 
+          @input="currentPage = 1"
         />
         <MagnifyingGlassIcon class="h-5 w-5 text-gray-400 absolute left-3 top-2.5" />
       </div>
@@ -299,10 +292,10 @@ onMounted(() => {
               </div>
             </td>
           </tr>
-          <tr 
+          <tr
             v-else
-            v-for="(category, index) in paginatedCategories" 
-            :key="category.id" 
+            v-for="(category, index) in paginatedCategories"
+            :key="category.id"
             class="hover:bg-gray-50 dark:hover:bg-gray-800/50"
           >
             <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900 dark:text-gray-100">
@@ -312,7 +305,7 @@ onMounted(() => {
               {{ category.name }}
             </td>
             <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium space-x-2">
-              <button 
+              <button
                 @click="openEditModal(category)"
                 class="inline-flex items-center px-3 py-1 rounded-md
                       bg-yellow-100 dark:bg-yellow-900/30 text-yellow-800 dark:text-yellow-200 hover:bg-yellow-200 dark:hover:bg-yellow-800/50 transition-colors duration-200"
@@ -320,7 +313,7 @@ onMounted(() => {
                 <SquarePenIcon class="h-4 w-4 mr-1" />
                 Edit
               </button>
-              <button 
+              <button
                 @click="() => confirmDelete(category)"
                 class="inline-flex items-center px-3 py-1 rounded-md bg-red-100 dark:bg-red-900/30 text-red-800 dark:text-red-200 hover:bg-red-200 dark:hover:bg-red-800/50 transition-colors duration-200"
               >
@@ -353,11 +346,11 @@ onMounted(() => {
         <div class="hidden sm:flex-1 sm:flex sm:items-center sm:justify-between">
           <div>
             <p class="text-sm text-gray-700 dark:text-gray-300">
-              Showing 
+              Showing
               <span class="font-medium">{{ (currentPage - 1) * itemsPerPage + 1 }}</span>
-              to 
+              to
               <span class="font-medium">{{ Math.min(currentPage * itemsPerPage, filteredCategories.length) }}</span>
-              of 
+              of
               <span class="font-medium">{{ filteredCategories.length }}</span>
               results
             </p>
@@ -372,7 +365,7 @@ onMounted(() => {
                 <span class="sr-only">Previous</span>
                 &lt;
               </button>
-              
+
               <!-- Page numbers -->
               <button
                 v-for="page in totalPages"
@@ -386,7 +379,7 @@ onMounted(() => {
               >
                 {{ page }}
               </button>
-              
+
               <button
                 @click="nextPage"
                 :disabled="currentPage === totalPages"
@@ -428,8 +421,8 @@ onMounted(() => {
           <Button variant="outline" @click="closeCreateModal">
             Cancel
           </Button>
-          <Button 
-            type="submit" 
+          <Button
+            type="submit"
             @click="handleCreate"
             :disabled="!newCategoryName.trim()"
           >
@@ -466,8 +459,8 @@ onMounted(() => {
           <Button variant="outline" @click="closeEditModal">
             Cancel
           </Button>
-          <Button 
-            type="submit" 
+          <Button
+            type="submit"
             @click="handleUpdate"
             :disabled="!editingName.trim() || editingName.trim() === currentEditingCategory?.name"
           >

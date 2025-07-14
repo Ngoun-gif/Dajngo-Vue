@@ -6,7 +6,6 @@ export interface User {
   username: string
   email: string
   password : string
-  current_password : string
   is_staff : boolean
   is_active : boolean
 }
