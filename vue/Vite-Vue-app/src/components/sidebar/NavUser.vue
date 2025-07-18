@@ -8,6 +8,9 @@ import {
   Sparkles,
 } from 'lucide-vue-next'
 
+import { logout } from '@/services/authService'
+import { useRouter } from 'vue-router'
+
 import {
   Avatar,
   AvatarFallback,
@@ -38,7 +41,18 @@ const props = defineProps<{
 }>()
 
 const { isMobile } = useSidebar()
+const router = useRouter()
+
+async function handleLogout() {
+  try {
+    await logout()
+    router.push('/login')
+  } catch (error) {
+    console.error('Logout error:', error)
+  }
+}
 </script>
+
 
 <template>
   <SidebarMenu>
@@ -56,8 +70,8 @@ const { isMobile } = useSidebar()
               </AvatarFallback>
             </Avatar>
             <div class="grid flex-1 text-left text-sm leading-tight">
-              <span class="truncate font-medium">Khim hengngoun</span>
-              <span class="truncate text-xs">Khimhengngoun@gmai.com</span>
+              <span class="truncate font-medium">{{ user.name }}</span>
+              <span class="truncate text-xs">{{ user.email }}</span>
             </div>
             <ChevronsUpDown class="ml-auto size-4" />
           </SidebarMenuButton>
@@ -77,8 +91,8 @@ const { isMobile } = useSidebar()
                 </AvatarFallback>
               </Avatar>
               <div class="grid flex-1 text-left text-sm leading-tight">
-                <span class="truncate font-semibold">Khim hengngoun</span>
-                <span class="truncate text-xs">Khimhengngoun@gmail.com</span>
+                <span class="truncate font-semibold">{{ user.name }}</span>
+                <span class="truncate text-xs">{{ user.email }}</span>
               </div>
             </div>
           </DropdownMenuLabel>
@@ -105,7 +119,7 @@ const { isMobile } = useSidebar()
             </DropdownMenuItem>
           </DropdownMenuGroup>
           <DropdownMenuSeparator />
-          <DropdownMenuItem>
+          <DropdownMenuItem @click="handleLogout">
             <LogOut />
             Log out
           </DropdownMenuItem>

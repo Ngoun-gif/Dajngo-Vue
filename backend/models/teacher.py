@@ -16,7 +16,8 @@ class Teacher(models.Model):
     date_of_birth = models.DateField()
     salary = models.DecimalField(max_digits=10, decimal_places=2)
     photo = models.ImageField(upload_to='teacher_photos/', blank=True, null=True)
-    subject = models.ForeignKey(Subject, on_delete=models.CASCADE)
+    subject = models.ForeignKey(Subject, on_delete=models.CASCADE, null=True, blank=True)
+
 
     created_at = models.DateTimeField(auto_now_add=True)
     created_by = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, related_name='teacher_created_by')

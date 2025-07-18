@@ -13,8 +13,10 @@ const { isDark, toggle } = useDarkMode()
     variant="ghost" 
     size="icon"
     aria-label="Toggle dark mode"
+    class="text-foreground hover:bg-accent"
   >
-    <Sun v-if="isDark" class="h-5 w-5" />
+    <Sun v-if="!isDark" class="h-5 w-5" />
     <Moon v-else class="h-5 w-5" />
-  </Button>
+    <span class="sr-only">Toggle dark mode</span>
+</Button>
 </template>

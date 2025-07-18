@@ -38,10 +38,33 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-    'rest_framework',
     'backend',  # Assuming 'backend' is the name of your app
     'corsheaders', # For handling CORS
+    'rest_framework',  # Django REST Framework
+    'rest_framework_simplejwt',
+    'rest_framework_simplejwt.token_blacklist',
+
+
 ]
+
+REST_FRAMEWORK = {
+    'DEFAULT_AUTHENTICATION_CLASSES': [
+        'rest_framework_simplejwt.authentication.JWTAuthentication',
+    ],
+}
+
+from datetime import timedelta
+
+SIMPLE_JWT = {
+    'ACCESS_TOKEN_LIFETIME': timedelta(minutes=15),
+    'REFRESH_TOKEN_LIFETIME': timedelta(days=1),
+    'ROTATE_REFRESH_TOKENS': True,
+    'BLACKLIST_AFTER_ROTATION': True,
+    'AUTH_HEADER_TYPES': ('Bearer',),
+    'AUTH_TOKEN_CLASSES': ('rest_framework_simplejwt.tokens.AccessToken',),
+    'TOKEN_BLACKLIST_ENABLED': True,
+}
+
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
@@ -56,6 +79,7 @@ MIDDLEWARE = [
     'django.middleware.csrf.CsrfViewMiddleware', # CSRF middleware
 
 ]
+
 CORS_ALLOWED_ORIGINS = [
     "http://localhost:5173",  # Vue.js development server
     'http://127.0.0.1:5173',  # Vue.js development server
@@ -111,6 +135,9 @@ DATABASES = {
         'PASSWORD': '123@',
         'HOST': 'localhost',
         'PORT': '5433',
+        'OPTIONS': {
+            'options': '-c search_path=project_a,public'
+        }
     }
 }
 
