@@ -62,7 +62,7 @@ This is a full-stack web application built with **Django REST Framework** as the
 
 ## ⚙️ Setup Instructions
 
-### 🔧 Backend (Django)
+
 
 ```bash
 # Step 1: Create virtual env
@@ -78,6 +78,8 @@ python manage.py runserver
 
 ---
 
+
+### 🔧 Backend (Django)
 # Step 1: Install dependencies
 cd frontend
 npm install
