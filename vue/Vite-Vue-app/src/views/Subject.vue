@@ -222,11 +222,7 @@ function formatDateTime(value?: string): string {
     .toString().padStart(2, '0')}:${date.getMinutes().toString().padStart(2, '0')}`
 }
 
-const userIdToName: Record<number, string> = {
-  1: 'Admin',
-  2: 'Staff A',
-  3: 'Staff B',
-}
+
 
 
 onMounted(() => {
