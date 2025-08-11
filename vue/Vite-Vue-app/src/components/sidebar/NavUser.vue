@@ -8,8 +8,6 @@ import {
   Sparkles,
 } from 'lucide-vue-next'
 
-import { logout } from '@/services/authService'
-import { useRouter } from 'vue-router'
 
 import {
   Avatar,
@@ -32,7 +30,7 @@ import {
   useSidebar,
 } from '@/components/ui/sidebar'
 
-const props = defineProps<{
+defineProps<{
   user: {
     name: string
     email: string
@@ -40,8 +38,11 @@ const props = defineProps<{
   }
 }>()
 
+import { useRouter } from 'vue-router'
+import { logout } from '@/services/authService'
 const { isMobile } = useSidebar()
 const router = useRouter()
+
 
 async function handleLogout() {
   try {
@@ -51,6 +52,7 @@ async function handleLogout() {
     console.error('Logout error:', error)
   }
 }
+
 </script>
 
 

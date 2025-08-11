@@ -271,8 +271,6 @@ onMounted(() => {
             <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Subject Name</th>
             <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Created At</th>
             <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Updated At</th>
-            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Created By</th>
-            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Updated By</th>
             <th class="px-6 py-3 text-right text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Actions</th>
           </tr>
         </thead>
@@ -294,7 +292,7 @@ onMounted(() => {
             </td>
           </tr>
           <tr v-else-if="filteredSubjects.length === 0">
-            <td colspan="3" class="px-6 py-4 text-center">
+            <td colspan="8" class="px-6 py-4 text-center">
               <div class="flex flex-col items-center justify-center space-y-2 text-gray-500 dark:text-gray-400">
                 <FolderIcon class="h-12 w-12 opacity-40" />
                 <p class="text-lg">No subjects found</p>
@@ -319,12 +317,6 @@ onMounted(() => {
             </td>
             <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-700 dark:text-gray-300">
               {{ formatDateTime(subject.updated_at) }}
-            </td>
-            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-700 dark:text-gray-300">
-              {{ userIdToName[subject.created_by ?? 0] || '-' }}
-            </td>
-            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-700 dark:text-gray-300">
-              {{ userIdToName[subject.updated_by ?? 0] || '-' }}
             </td>
 
             <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium space-x-2">

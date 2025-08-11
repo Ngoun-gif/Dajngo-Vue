@@ -18,7 +18,7 @@ import DarkModeToggle from '@/components/DarkModeToggle.vue'
             <div class="flex h-6 w-6 items-center justify-center rounded-md bg-primary text-primary-foreground">
               <GalleryVerticalEnd class="h-4 w-4" />
             </div>
-            Acme Inc.
+            AMT-PUSH
           </a>
         </div>
         <DarkModeToggle />
