@@ -1,3 +1,5 @@
+# backend/models/teacher.py
+
 from django.db import models
 from .subject import Subject
 from django.contrib.auth.models import User

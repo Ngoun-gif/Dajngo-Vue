@@ -103,6 +103,10 @@ const data = {
         {
           title: 'Subjects',
           url: '/subject',
+        },
+        {
+          title: 'Students',
+          url: '/Student',
         }
       ],
     },
